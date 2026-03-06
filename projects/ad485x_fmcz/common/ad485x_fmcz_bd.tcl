@@ -55,22 +55,21 @@ create_bd_port -dir O system_cpu_clk
 # adc clock generator
 
 ad_ip_instance axi_clkgen adc_clkgen
-ad_ip_parameter adc_clkgen CONFIG.CLKIN_PERIOD 5
-ad_ip_parameter adc_clkgen CONFIG.VCO_DIV 1
-ad_connect  sys_200m_clk adc_clkgen/clk
+ad_ip_parameter adc_clkgen CONFIG.CLKIN_PERIOD 4
+ad_ip_parameter adc_clkgen CONFIG.VCO_DIV 5
+ad_ip_parameter adc_clkgen CONFIG.VCO_MUL 24
+ad_connect  sys_250m_clk adc_clkgen/clk
 if {$LVDS_CMOS_N == "0"} {
   # CMOS setup
   # clk0 = 200M
-  ad_ip_parameter adc_clkgen CONFIG.VCO_MUL 6
   ad_ip_parameter adc_clkgen CONFIG.CLK0_DIV 6
   ad_connect adc_clk adc_clkgen/clk_0
 } else {
   # LVDS setup
   # clk0 = 200M
   # clk1 = 400M
-  ad_ip_parameter adc_clkgen CONFIG.VCO_MUL 6
-  ad_ip_parameter adc_clkgen CONFIG.CLK0_DIV 6
   ad_ip_parameter adc_clkgen CONFIG.ENABLE_CLKOUT1 "true"
+  ad_ip_parameter adc_clkgen CONFIG.CLK0_DIV 6
   ad_ip_parameter adc_clkgen CONFIG.CLK1_DIV 3
   ad_connect adc_clk adc_clkgen/clk_0
   ad_connect adc_fast_clk adc_clkgen/clk_1
@@ -117,6 +116,7 @@ ad_connect sys_cpu_clk      axi_pwm_gen/s_axi_aclk
 ad_ip_instance axi_ad485x axi_ad485x
 ad_ip_parameter axi_ad485x CONFIG.LVDS_CMOS_N $LVDS_CMOS_N
 ad_ip_parameter axi_ad485x CONFIG.EXTERNAL_CLK 1
+ad_ip_parameter axi_ad485x CONFIG.DELAY_REFCLK_FREQ 500
 ad_ip_parameter axi_ad485x CONFIG.DEVICE $DEVICE
 ad_connect  axi_ad485x/external_clk adc_clk
 if {$LVDS_CMOS_N == "0"} {
@@ -175,7 +175,7 @@ for {set i 0} {$i < $numb_of_ch} {incr i} {
 
 ad_connect  sys_cpu_clk         system_cpu_clk
 
-ad_connect  sys_300m_clk        axi_ad485x/delay_clk
+ad_connect  sys_500m_clk        axi_ad485x/delay_clk
 ad_connect  axi_pwm_gen/pwm_0   axi_ad485x/cnvs
 
 # interrupts
