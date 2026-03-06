@@ -36,35 +36,8 @@
 `timescale 1ns/100ps
 
 module system_top (
-  inout       [16:0]      ddr4_addr,
-  inout       [ 1:0]      ddr4_ba,
-  inout                   ddr4_bg,
-  inout                   ddr4_cke,
-  inout                   ddr4_odt,
-  inout                   ddr4_cs_n,
-  inout                   ddr4_act_n,
-  inout                   ddr4_ras_n,
-  inout                   ddr4_cas_n,
-  inout                   ddr4_we_n,
-  inout                   ddr4_ck_p,
-  inout                   ddr4_ck_n,
-  inout       [ 7:0]      ddr4_dm_dbi_n,
-  inout       [63:0]      ddr4_dq,
-  inout       [ 7:0]      ddr4_dqs_c,
-  inout       [ 7:0]      ddr4_dqs_t,
-  inout                   ddr4_reset_n,
 
-  inout                   fixed_io_mio_0,
-  inout                   fixed_io_mio_1,
-  inout       [ 3:0]      fixed_io_mio_4_7,
-  inout       [53:47]     fixed_io_mio_47_43,
-  inout                   fixed_io_ps_clk,
-  inout                   fixed_io_ps_porb,
-  inout                   fixed_io_ps_srstb,
-  inout       [ 1:0]      fixed_io_ddr_vrn,
-  inout       [ 1:0]      fixed_io_ddr_vrp,
-
-  inout       [31:0]      gpio_bd,
+  inout       [27:0]      gpio_bd,
 
   output                  scki,
   input                   scko,
@@ -87,20 +60,9 @@ module system_top (
   wire    [94:0]  gpio_o;
   wire    [94:0]  gpio_t;
 
-  wire            spi0_csn;
-  wire            spi0_sclk;
-  wire            spi0_mosi;
-  wire            spi0_miso;
-
-  wire            spi1_csn;
-  wire            spi1_sclk;
-  wire            spi1_mosi;
-  wire            spi1_miso;
-
   wire            spiad_sck_s;
   wire            spiad_csn_s;
   wire            spiad_sdi_s;
-
   wire            cpu_clk;
 
   reg     [ 4:0]  cnt_cs_up = 3'd0;
@@ -126,64 +88,34 @@ module system_top (
   // instantiations
 
   ad_iobuf #(
-    .DATA_WIDTH(32)
+    .DATA_WIDTH(28)
   ) i_iobuf (
-    .dio_t(gpio_t[31:0]),
-    .dio_i(gpio_o[31:0]),
-    .dio_o(gpio_i[31:0]),
+    .dio_t(gpio_t[27:0]),
+    .dio_i(gpio_o[27:0]),
+    .dio_o(gpio_i[27:0]),
     .dio_p(gpio_bd));
 
   system_wrapper i_system_wrapper (
-    .ddr4_act_n(ddr4_act_n),
-    .ddr4_addr(ddr4_addr),
-    .ddr4_ba(ddr4_ba),
-    .ddr4_bg(ddr4_bg),
-    .ddr4_cas_n(ddr4_cas_n),
-    .ddr4_ck_n(ddr4_ck_n),
-    .ddr4_ck_p(ddr4_ck_p),
-    .ddr4_cke(ddr4_cke),
-    .ddr4_cs_n(ddr4_cs_n),
-    .ddr4_dm_dbi_n(ddr4_dm_dbi_n),
-    .ddr4_dq(ddr4_dq),
-    .ddr4_dqs_c(ddr4_dqs_c),
-    .ddr4_dqs_t(ddr4_dqs_t),
-    .ddr4_odt(ddr4_odt),
-    .ddr4_ras_n(ddr4_ras_n),
-    .ddr4_reset_n(ddr4_reset_n),
-    .ddr4_we_n(ddr4_we_n),
-    .fixed_io_ddr_vrn(fixed_io_ddr_vrn),
-    .fixed_io_ddr_vrp(fixed_io_ddr_vrp),
-    .fixed_io_mio_0(fixed_io_mio_0),
-    .fixed_io_mio_1(fixed_io_mio_1),
-    .fixed_io_mio_4_7(fixed_io_mio_4_7),
-    .fixed_io_mio_47_43(fixed_io_mio_47_43),
-    .fixed_io_ps_clk(fixed_io_ps_clk),
-    .fixed_io_ps_porb(fixed_io_ps_porb),
-    .fixed_io_ps_srstb(fixed_io_ps_srstb),
-    .gpio_i(gpio_i),
-    .gpio_o(gpio_o),
-    .gpio_t(gpio_t),
-    .adc_lane_0(sdo[0]),
-    .adc_lane_1(sdo[1]),
-    .adc_lane_2(sdo[2]),
-    .adc_lane_3(sdo[3]),
-    .busy(busy),
-    .cnv(cnv),
-    .lvds_cmos_n(lvds_cmos_n),
-    .scki(scki),
-    .scko(scko),
-    .spi0_csn(spi0_csn),
-    .spi0_miso(spi0_miso),
-    .spi0_mosi(spi0_mosi),
-    .spi0_sclk(spi0_sclk),
-    .spi1_csn(spi1_csn),
-    .spi1_miso(spi1_miso),
-    .spi1_mosi(spi1_mosi),
-    .spi1_sclk(spi1_sclk),
-    .system_cpu_clk(cpu_clk),
-    .spi0_sdo(csd0));
+    .gpio_i (gpio_i),
+    .gpio_o (gpio_o),
+    .gpio_t (gpio_t),
+    .system_cpu_clk (cpu_clk),
+    .spi0_csn ({2'b11, spiad_csn_s}),
+    .spi0_sclk (spiad_sck_s),
+    .spi0_mosi (spiad_sdi_s),
+    .spi0_miso (csd0),
+    .spi1_csn (3'b111),
+    .spi1_sclk (),
+    .spi1_mosi (),
+    .spi1_miso (1'b0),
+    .scki (scki),
+    .scko (scko),
+    .adc_lane_0 (sdo[0]),
+    .adc_lane_1 (sdo[1]),
+    .adc_lane_2 (sdo[2]),
+    .adc_lane_3 (sdo[3]),
+    .busy (busy),
+    .cnv (cnv),
+    .lvds_cmos_n (lvds_cmos_n));
 
 endmodule
-
-// ***************************************************************************
-// ***************************************************************************

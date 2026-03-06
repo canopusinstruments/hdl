@@ -175,7 +175,7 @@ for {set i 0} {$i < $numb_of_ch} {incr i} {
 
 ad_connect  sys_cpu_clk         system_cpu_clk
 
-ad_connect  sys_200m_clk        axi_ad485x/delay_clk
+ad_connect  sys_300m_clk        axi_ad485x/delay_clk
 ad_connect  axi_pwm_gen/pwm_0   axi_ad485x/cnvs
 
 # interrupts

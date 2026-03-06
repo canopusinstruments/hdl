@@ -1,6 +1,6 @@
 // ***************************************************************************
 // ***************************************************************************
-// Copyright (C) 2025 Analog Devices, Inc. All rights reserved.
+// Copyright (C) 2022-2023 Analog Devices, Inc. All rights reserved.
 //
 // In this HDL repository, there are many different and unique modules, consisting
 // of various HDL (Verilog or VHDL) components. The individual modules are
@@ -37,39 +37,7 @@
 
 module system_top (
 
-  // ZCU104 DDR4 Interface
-  inout       [16:0]      ddr4_addr,
-  inout       [ 1:0]      ddr4_ba,
-  inout                   ddr4_bg,
-  inout                   ddr4_cke,
-  inout                   ddr4_odt,
-  inout                   ddr4_cs_n,
-  inout                   ddr4_act_n,
-  inout                   ddr4_ras_n,
-  inout                   ddr4_cas_n,
-  inout                   ddr4_we_n,
-  inout                   ddr4_ck_p,
-  inout                   ddr4_ck_n,
-  inout       [ 7:0]      ddr4_dm_dbi_n,
-  inout       [63:0]      ddr4_dq,
-  inout       [ 7:0]      ddr4_dqs_c,
-  inout       [ 7:0]      ddr4_dqs_t,
-  inout                   ddr4_reset_n,
-
-  // ZCU104 Fixed I/O - PS Miscellaneous
-  inout                   fixed_io_mio_0,  // QSPI CS
-  inout                   fixed_io_mio_1,  // QSPI CLK
-  inout       [ 3:0]      fixed_io_mio_4_7, // QSPI DATA
-  inout       [53:47]     fixed_io_mio_47_43, // Other MIO
-  inout                   fixed_io_ps_clk,
-  inout                   fixed_io_ps_porb,
-  inout                   fixed_io_ps_srstb,
-  inout       [ 1:0]      fixed_io_ddr_vrn,
-  inout       [ 1:0]      fixed_io_ddr_vrp,
-
-  // GPIO - expansion pins (if used)
-  inout       [31:0]      gpio_bd
-
+  inout   [27:0]  gpio_bd
 );
 
   // internal signals
@@ -78,36 +46,7 @@ module system_top (
   wire    [94:0]  gpio_o;
   wire    [94:0]  gpio_t;
 
-  wire            spi0_csn;
-  wire            spi0_sclk;
-  wire            spi0_mosi;
-  wire            spi0_miso;
-
-  wire            spi1_csn;
-  wire            spi1_sclk;
-  wire            spi1_mosi;
-  wire            spi1_miso;
-
-  // high-speed I/O interface
-
-  wire    [63:0]  ddr4_dq_oe_n;
-  wire            ddr4_dqs_t_oe_n;
-  wire            ddr4_dqs_c_oe_n;
-
-  wire    [16:0]  ddr4_addr_oe_n;
-  wire    [ 1:0]  ddr4_ba_oe_n;
-  wire            ddr4_bg_oe_n;
-  wire            ddr4_cke_oe_n;
-  wire            ddr4_odt_oe_n;
-  wire            ddr4_cs_n_oe_n;
-  wire            ddr4_act_n_oe_n;
-  wire            ddr4_ras_n_oe_n;
-  wire            ddr4_cas_n_oe_n;
-  wire            ddr4_we_n_oe_n;
-  wire            ddr4_ck_p_oe_n;
-  wire            ddr4_ck_n_oe_n;
-
-  // instantiations
+  // gpio - connect user gpio (lower 32-bits)
 
   ad_iobuf #(
     .DATA_WIDTH(32)
@@ -118,43 +57,18 @@ module system_top (
     .dio_p(gpio_bd));
 
   system_wrapper i_system_wrapper (
-    .ddr4_act_n(ddr4_act_n),
-    .ddr4_addr(ddr4_addr),
-    .ddr4_ba(ddr4_ba),
-    .ddr4_bg(ddr4_bg),
-    .ddr4_cas_n(ddr4_cas_n),
-    .ddr4_ck_n(ddr4_ck_n),
-    .ddr4_ck_p(ddr4_ck_p),
-    .ddr4_cke(ddr4_cke),
-    .ddr4_cs_n(ddr4_cs_n),
-    .ddr4_dm_dbi_n(ddr4_dm_dbi_n),
-    .ddr4_dq(ddr4_dq),
-    .ddr4_dqs_c(ddr4_dqs_c),
-    .ddr4_dqs_t(ddr4_dqs_t),
-    .ddr4_odt(ddr4_odt),
-    .ddr4_ras_n(ddr4_ras_n),
-    .ddr4_reset_n(ddr4_reset_n),
-    .ddr4_we_n(ddr4_we_n),
-    .fixed_io_ddr_vrn(fixed_io_ddr_vrn),
-    .fixed_io_ddr_vrp(fixed_io_ddr_vrp),
-    .fixed_io_mio_0(fixed_io_mio_0),
-    .fixed_io_mio_1(fixed_io_mio_1),
-    .fixed_io_mio_4_7(fixed_io_mio_4_7),
-    .fixed_io_mio_47_43(fixed_io_mio_47_43),
-    .fixed_io_ps_clk(fixed_io_ps_clk),
-    .fixed_io_ps_porb(fixed_io_ps_porb),
-    .fixed_io_ps_srstb(fixed_io_ps_srstb),
-    .gpio_i(gpio_i),
-    .gpio_o(gpio_o),
-    .gpio_t(gpio_t),
-    .spi0_csn(spi0_csn),
-    .spi0_miso(spi0_miso),
-    .spi0_mosi(spi0_mosi),
-    .spi0_sclk(spi0_sclk),
-    .spi1_csn(spi1_csn),
-    .spi1_miso(spi1_miso),
-    .spi1_mosi(spi1_mosi),
-    .spi1_sclk(spi1_sclk));
+    .gpio_i (gpio_i),
+    .gpio_o (gpio_o),
+    .gpio_t (gpio_t),
+
+    .spi0_csn (1'b1),
+    .spi0_miso (1'b0),
+    .spi0_mosi (),
+    .spi0_sclk (),
+    .spi1_csn (1'b1),
+    .spi1_miso (1'b0),
+    .spi1_mosi (),
+    .spi1_sclk ());
 
 endmodule
 
